@@ -13,7 +13,7 @@ class Node:
         self.bias = np.full((1,data_output_size),0.01)
         # dictionary for all the activaion function
         if isinstance(activation, str):
-            dic= {'sigmoid': (self.sigmoid, self.sigmoid_deriv), 'relu': (self.relu, self.relu_deriv), 'sign': (self.sign, self.sign_deriv) }
+            dic= {'sigmoid': (self.sigmoid, self.sigmoid_deriv), 'relu': (self.relu, self.relu_deriv), 'sign': (self.sign, self.sign_deriv), 'tanh':(self.tanh, self.tanh_deriv) }
             if activation not in dic:
                 raise ValueError(f"Unknown activation: {activation}")
             self.activation, self.activation_deriv = dic[activation]
@@ -24,7 +24,7 @@ class Node:
     #Error Depending on position
     def error(self, y, y_predict, output_delta, weights_hidden_output):
         if self.position == "output":
-            return y - y_predict
+            return  y -y_predict
         elif self.position == "hidden":
             return np.dot(output_delta, weights_hidden_output.T)
         else:
@@ -34,7 +34,8 @@ class Node:
     #o(x) = (e^z - e ^ -z) / (e ^ z + e ^ -z)
     def tanh(self, x):
         return np.tanh(x)
-
+    def tanh_deriv(self, x):
+        return 1- np.tanh(x)**2
     # sigmoid(x) = 1 / (1 + exp(-x))
     def sigmoid(self, x):
         return 1/(1+np.exp(-x))
@@ -77,7 +78,7 @@ class Node:
         prediction = self.activation(z)
         return prediction
 
-    #gradient wheigt = learing rate * error term *
+    #gradient weight = learning rate * error term *
     def backward(self, output_prev, y, y_predict, output_delta, weights_previous):
         #error if output = y_predict -y else hidden = w_danach * y_predict
         error = self.error(y, y_predict, output_delta, weights_previous)
@@ -85,10 +86,9 @@ class Node:
         delta = error *  self.activation_deriv(y_predict)
         #wheight = weight+ ( output_prev * error* f'(y_predict) * eta)
         self.matrix += np.dot(output_prev.reshape(-1, 1) ,delta) * self.eta
-        #bias =
+        #bias = error * f'(y_predict) * eta
         self.bias += np.sum(delta, axis=0, keepdims=True) * self.eta
         return delta
-
 
     def getMatrix(self):
         return self.matrix

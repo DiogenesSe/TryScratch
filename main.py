@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from node import Node
+from net import Network
 
 points = np.array([[0., 0., 1., 1.],
                    [0., 1., 0., 1.]])
@@ -9,7 +10,7 @@ points = np.array([[0., 0., 1., 1.],
 xor_labels = np.array([-1, 1, 1, -1])
 or_labels = np.array([-1, 1, 1, 1])
 
-labels = or_labels
+labels = xor_labels
 
 def plot():
     label_colors = {-1: 'r', 1: 'g'}
@@ -58,11 +59,9 @@ def abbilden():
     plt.show()
 
 
-
-
-neuron = Node(2,4, 0.1, "sigmoid", "hidden")
+neuron = Node(2,4, 0.1, "tanh", "hidden")
 neuron2 = Node(4,1,0.1, "sigmoid", "output")
-
+Netz = Network([neuron, neuron2])
 def train(data,y):
     hidden_1 = neuron.forward(data)
     output = neuron2.forward(hidden_1)
@@ -70,15 +69,16 @@ def train(data,y):
     hidden_1 = neuron.backward(data,y,hidden_1, output_delta,neuron2.getMatrix() )
 
 def anwenden(data):
-    hidden_1 = neuron.forward(data)
-    output = neuron2.forward(hidden_1)
-    return output
+    return Netz.anwenden(data)
 
 plot()
-
-for x in range(1000):
+for x in range(100):
     for i in range(points.shape[1]):
         pair = points[:, i]
+
         train(pair, labels[i])
+        if i%10 == 0:
+            abbilden()
+        #Netz.train(pair, labels[i])
         #print(res)
 abbilden()
