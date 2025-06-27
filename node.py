@@ -2,21 +2,33 @@ import numpy as np
 import random
 
 class Node:
-    def __init__(self, X_input_size, data_output_size, eta, activation):
+    def __init__(self, X_input_size, data_output_size, eta, activation, position):
         self.data_input_size = X_input_size
         self.data_output_size = data_output_size
         self.eta = eta
+        # n x p has to be machted to p x y
         self.matrix = np.random.rand(X_input_size, data_output_size)
+        self.position = position
         #to avoid dying rlu 0.01 else 0.0 would be acceptable
-        self.bias = np.full((data_output_size,1),0.01)
+        self.bias = np.full((1,data_output_size),0.01)
         # dictionary for all the activaion function
         if isinstance(activation, str):
-            dic= {'sigmoid': self.sigmoid, 'relu': self.relu, 'sign': self.sign}
+            dic= {'sigmoid': (self.sigmoid, self.sigmoid_deriv), 'relu': (self.relu, self.relu_deriv), 'sign': (self.sign, self.sign_deriv) }
             if activation not in dic:
                 raise ValueError(f"Unknown activation: {activation}")
-            self.activation = dic[activation]
+            self.activation, self.activation_deriv = dic[activation]
+
         else:
             self.activation = activation
+
+    #Error Depending on position
+    def error(self, y, y_predict, output_delta, weights_hidden_output):
+        if self.position == "output":
+            return y - y_predict
+        elif self.position == "hidden":
+            return np.dot(output_delta, weights_hidden_output.T)
+        else:
+            return 0
 
     #tanh output x-> -inf : -1, x -> inf: 1
     #o(x) = (e^z - e ^ -z) / (e ^ z + e ^ -z)
@@ -42,6 +54,8 @@ class Node:
     #Posible output x= 0 then 0 if x >0 then 1 ELSE -1
     def sign(self, x):
         return np.sign(x)
+    def sign_deriv(self, x):
+        return 0
 
     #Good for classification problems. CE = -(y * log(ŷ)+(1-y)*log(1-ŷ))
     # y = real label, ŷ = prediction
@@ -58,13 +72,36 @@ class Node:
 
     #data x wheight_matrix + biase = z , activation(z) = prediction
     def forward(self, data):
+        data = data.reshape(1, -1)
         z = np.dot(data, self.matrix) + self.bias
         prediction = self.activation(z)
         return prediction
 
-    def backward(self, y ):
+    #gradient wheigt = learing rate * error term *
+    def backward(self, output_prev, y, y_predict, output_delta, weights_previous):
+        #error if output = y_predict -y else hidden = w_danach * y_predict
+        error = self.error(y, y_predict, output_delta, weights_previous)
+        #delta = error *f'(y_predict)
+        delta = error *  self.activation_deriv(y_predict)
+        #wheight = weight+ ( output_prev * error* f'(y_predict) * eta)
+        self.matrix += np.dot(output_prev.reshape(-1, 1) ,delta) * self.eta
+        #bias =
+        self.bias += np.sum(delta, axis=0, keepdims=True) * self.eta
+        return delta
 
-        pass
 
+    def getMatrix(self):
+        return self.matrix
+    def getBias(self):
+        return self.bias
 
+    def setBias(self, bias):
+        self.bias = bias
+    def setMatrix(self, matrix):
+        self.matrix = matrix
+    def returnAll(self):
+        print("---------- MATRIX ----------")
+        print(self.matrix)
+        print("----------- BIAS -----------")
+        print(self.bias)
 

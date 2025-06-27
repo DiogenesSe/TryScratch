@@ -27,14 +27,58 @@ def plot():
     fig.tight_layout()
     plt.show()
 
-weights = np.random.rand(3)
-eta = 0.2
+
+def abbilden():
+    x = -0.5
+    point_small  = np.empty((2,0))
+    solution = np.empty((1,0))
+    while x <= 1.5:
+        y = -0.5
+        while y <= 1.5:
+            point = np.array([[x], [y]])
+            point_small = np.hstack((point_small, point))
+            if anwenden(point.T) < 0.5:
+                solution = np.hstack((solution, np.array([[-1]])))
+            else:
+                solution = np.hstack((solution, np.array([[1]])))
+            y += 0.1
+        x += 0.1
+
+    label_colors = {-1: 'r', 1: 'g'}
+    colors = list(map(lambda x: label_colors[int(x)], solution.flatten()))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.scatter(point_small[0, :], point_small[1, :], c=list(colors), s=60)
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(-0.5, 1.5)
+    ax.set_aspect("equal")
+    fig.tight_layout()
+    plt.show()
 
 
 
-#plot()
-neuron = Node(2,1, 0.2, "sigmoid")
-for i in range(points.shape[1]):
-    pair = points[:, i]
-    res = neuron.forward(pair)
-    print(res)
+
+neuron = Node(2,4, 0.1, "sigmoid", "hidden")
+neuron2 = Node(4,1,0.1, "sigmoid", "output")
+
+def train(data,y):
+    hidden_1 = neuron.forward(data)
+    output = neuron2.forward(hidden_1)
+    output_delta = neuron2.backward(hidden_1,y,output,0,0)
+    hidden_1 = neuron.backward(data,y,hidden_1, output_delta,neuron2.getMatrix() )
+
+def anwenden(data):
+    hidden_1 = neuron.forward(data)
+    output = neuron2.forward(hidden_1)
+    return output
+
+plot()
+
+for x in range(1000):
+    for i in range(points.shape[1]):
+        pair = points[:, i]
+        train(pair, labels[i])
+        #print(res)
+abbilden()
