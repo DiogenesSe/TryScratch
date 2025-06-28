@@ -7,13 +7,13 @@ from net import Network
 points = np.array([[0., 0., 1., 1.],
                    [0., 1., 0., 1.]])
 
-xor_labels = np.array([-1, 1, 1, -1])
-or_labels = np.array([-1, 1, 1, 1])
+xor_labels = np.array([0, 1, 1, 0])
+or_labels = np.array([0, 1, 1, 1])
 
 labels = xor_labels
 
 def plot():
-    label_colors = {-1: 'r', 1: 'g'}
+    label_colors = {0: 'r', 1: 'g'}
     colors = list(map(lambda x: label_colors[x], labels))
 
     fig = plt.figure()
@@ -39,13 +39,13 @@ def abbilden():
             point = np.array([[x], [y]])
             point_small = np.hstack((point_small, point))
             if anwenden(point.T) < 0.5:
-                solution = np.hstack((solution, np.array([[-1]])))
+                solution = np.hstack((solution, np.array([[0]])))
             else:
                 solution = np.hstack((solution, np.array([[1]])))
             y += 0.1
         x += 0.1
 
-    label_colors = {-1: 'r', 1: 'g'}
+    label_colors = {0: 'r', 1: 'g'}
     colors = list(map(lambda x: label_colors[int(x)], solution.flatten()))
 
     fig = plt.figure()
@@ -59,7 +59,7 @@ def abbilden():
     plt.show()
 
 
-neuron = Node(2,4, 0.1, "tanh", "hidden")
+neuron = Node(2,4, 0.1, "sigmoid", "hidden")
 neuron2 = Node(4,1,0.1, "sigmoid", "output")
 Netz = Network([neuron, neuron2])
 def train(data,y):
@@ -72,7 +72,7 @@ def anwenden(data):
     return Netz.anwenden(data)
 
 plot()
-for x in range(100):
+for x in range(130):
     for i in range(points.shape[1]):
         pair = points[:, i]
 

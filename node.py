@@ -74,8 +74,8 @@ class Node:
     #data x wheight_matrix + biase = z , activation(z) = prediction
     def forward(self, data):
         data = data.reshape(1, -1)
-        z = np.dot(data, self.matrix) + self.bias
-        prediction = self.activation(z)
+        self.z = np.dot(data, self.matrix) + self.bias
+        prediction = self.activation(self.z)
         return prediction
 
     #gradient weight = learning rate * error term *
@@ -83,7 +83,7 @@ class Node:
         #error if output = y_predict -y else hidden = w_danach * y_predict
         error = self.error(y, y_predict, output_delta, weights_previous)
         #delta = error *f'(y_predict)
-        delta = error *  self.activation_deriv(y_predict)
+        delta = error *  self.activation_deriv(self.z)
         #wheight = weight+ ( output_prev * error* f'(y_predict) * eta)
         self.matrix += np.dot(output_prev.reshape(-1, 1) ,delta) * self.eta
         #bias = error * f'(y_predict) * eta
