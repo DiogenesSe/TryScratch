@@ -10,7 +10,7 @@ class Node:
         self.matrix = np.random.rand(X_input_size, data_output_size)
         self.position = position
         #to avoid dying rlu 0.01 else 0.0 would be acceptable
-        self.bias = np.full((1,data_output_size),0.01)
+        self.bias = np.full((1,data_output_size),0.1)
         # dictionary for all the activaion function
         if isinstance(activation, str):
             dic= {'sigmoid': (self.sigmoid, self.sigmoid_deriv), 'relu': (self.relu, self.relu_deriv), 'sign': (self.sign, self.sign_deriv), 'tanh':(self.tanh, self.tanh_deriv) }

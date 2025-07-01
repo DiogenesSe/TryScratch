@@ -72,13 +72,15 @@ def anwenden(data):
     return Netz.anwenden(data)
 
 plot()
-for x in range(130):
+for x in range(230):
     for i in range(points.shape[1]):
         pair = points[:, i]
-
         train(pair, labels[i])
-        if i%10 == 0:
+        if x == 150:
             abbilden()
+    if x%10 == 0:
+        #abbilden()
+        pass
         #Netz.train(pair, labels[i])
         #print(res)
 abbilden()
