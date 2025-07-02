@@ -29,9 +29,13 @@ class Node:
     #Error Depending on position
     def error(self, y_true, y_pred, output_delta, weights_hidden_output):
         if self.position == "output":
-            return  self.meanSquareError(y_true, y_pred)
+            zw = self.standartLoss(y_true, y_pred)
+            print(f"loss: {zw}, predict: {y_pred}, real:{y_true}")
+            return  zw
         elif self.position == "hidden":
-            return np.dot(output_delta, weights_hidden_output.T)
+            zw = np.dot(output_delta, weights_hidden_output.T)
+            print(f"{zw}")
+            return zw
         else:
             return 0
 
@@ -104,6 +108,10 @@ class Node:
         return self.matrix
     def getBias(self):
         return self.bias
+    def getLearningRate(self):
+        return self.eta
+    def setLearningRate(self, eta):
+        self.eta = eta
 
     def setBias(self, bias):
         self.bias = bias

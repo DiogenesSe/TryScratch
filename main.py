@@ -59,8 +59,8 @@ def abbilden():
     plt.show()
 
 
-neuron = Node(2,4, 0.01, "sigmoid", "hidden")
-neuron2 = Node(4,1,0.01, "sigmoid", "output")
+neuron = Node(2,4, 0.1, "sigmoid", "hidden")
+neuron2 = Node(4,1,0.1, "sigmoid", "output")
 neuron3 = Node(4,1,0.1, "sigmoid", "output")
 Netz = Network([neuron, neuron2])
 def train(data,y):
@@ -80,6 +80,7 @@ for x in range(100000):
     #Netz.midtrain(points,labels)
         pair = points[:, i]
         Netz.train(pair, labels[i])
+        Netz.linearDescent(0.000001,0.0005)
         #if x == 150:
         #    abbilden()
     if x%100 == 0:

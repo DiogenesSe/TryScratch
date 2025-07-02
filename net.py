@@ -44,6 +44,11 @@ class Network:
         for i in range(len(self.list)):
             zw = self.list[i].forward(zw)
         return zw
+    def linearDescent(self, descend, stop):
+        for i in self.list:
+            zw = i.getLearningRate()
+            if zw > stop:
+                i.setLearningRate(zw-descend)
 
     def train(self, data, y):
         predictions = [data]
