@@ -7,10 +7,15 @@ class Node:
         self.data_output_size = data_output_size
         self.eta = eta
         # n x p has to be machted to p x y
-        self.matrix = np.random.rand(X_input_size, data_output_size)
+
+        #self.matrix = np.random.rand(X_input_size, data_output_size)
+        # testing of negative weights aswell
+        self.matrix = np.random.uniform(-0.5, 0.5, (X_input_size, data_output_size))
         self.position = position
         #to avoid dying rlu 0.01 else 0.0 would be acceptable
-        self.bias = np.full((1,data_output_size),0.1)
+        #self.bias = np.full((1,data_output_size),0.1)
+        #test with other
+        self.bias = np.zeros((1, data_output_size))
         # dictionary for all the activaion function
         if isinstance(activation, str):
             dic= {'sigmoid': (self.sigmoid, self.sigmoid_deriv), 'relu': (self.relu, self.relu_deriv), 'sign': (self.sign, self.sign_deriv), 'tanh':(self.tanh, self.tanh_deriv) }
@@ -22,9 +27,9 @@ class Node:
             self.activation = activation
 
     #Error Depending on position
-    def error(self, y, y_predict, output_delta, weights_hidden_output):
+    def error(self, y_true, y_pred, output_delta, weights_hidden_output):
         if self.position == "output":
-            return  y -y_predict
+            return  self.meanSquareError(y_true, y_pred)
         elif self.position == "hidden":
             return np.dot(output_delta, weights_hidden_output.T)
         else:
@@ -58,18 +63,20 @@ class Node:
     def sign_deriv(self, x):
         return 0
 
+    def standartLoss(self,  y_true, y_pred):
+        return y_true -y_pred
     #Good for classification problems. CE = -(y * log(ŷ)+(1-y)*log(1-ŷ))
     # y = real label, ŷ = prediction
-    def crossEntropyLoss(self, y_pred, y_true,eps=1e-15 ):
+    def crossEntropyLoss(self, y_true, y_pred,eps=1e-15 ):
         y_pred = np.clip(y_pred, eps, 1 - eps)
         return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
     #Good for regression problems. For this f(x) = 1 E n : (x-y)^ 2
-    def meanSquareError(self, X, Y):
-        return np.mean((X - Y)**2)
+    def meanSquareError(self, y_true, y_pred):
+        return np.mean((y_true - y_pred)**2)
 
     # Bad grows with data set size
-    def sumSquaredError(self, X,Y):
-        return np.sum((X - Y)**2)
+    def sumSquaredError(self, y_true,y_pred):
+        return np.sum((y_true - y_pred)**2)
 
     #data x wheight_matrix + biase = z , activation(z) = prediction
     def forward(self, data):
@@ -89,7 +96,10 @@ class Node:
         #bias = error * f'(y_predict) * eta
         self.bias += np.sum(delta, axis=0, keepdims=True) * self.eta
         return delta
-
+    def getZ(self):
+        return self.z
+    def setZ(self, z):
+        self.z = z
     def getMatrix(self):
         return self.matrix
     def getBias(self):

@@ -59,8 +59,9 @@ def abbilden():
     plt.show()
 
 
-neuron = Node(2,4, 0.1, "sigmoid", "hidden")
-neuron2 = Node(4,1,0.1, "sigmoid", "output")
+neuron = Node(2,4, 0.01, "sigmoid", "hidden")
+neuron2 = Node(4,1,0.01, "sigmoid", "output")
+neuron3 = Node(4,1,0.1, "sigmoid", "output")
 Netz = Network([neuron, neuron2])
 def train(data,y):
     hidden_1 = neuron.forward(data)
@@ -71,16 +72,19 @@ def train(data,y):
 def anwenden(data):
     return Netz.anwenden(data)
 
+
+
 plot()
-for x in range(230):
+for x in range(100000):
     for i in range(points.shape[1]):
+    #Netz.midtrain(points,labels)
         pair = points[:, i]
-        train(pair, labels[i])
-        if x == 150:
-            abbilden()
-    if x%10 == 0:
-        #abbilden()
-        pass
+        Netz.train(pair, labels[i])
+        #if x == 150:
+        #    abbilden()
+    if x%100 == 0:
+        abbilden()
+        #pass
         #Netz.train(pair, labels[i])
         #print(res)
 abbilden()
