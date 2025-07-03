@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import random
 
@@ -30,7 +32,7 @@ class Node:
     #Error Depending on position
     def error(self, y_true, y_pred, output_delta, weights_hidden_output):
         if self.position == "output":
-            self.preciseness = self.standartLoss(y_true, y_pred)
+            self.preciseness = self.BCILoss(y_true, y_pred)
             #print(f"loss: {self.preciseness}, predict: {y_pred}, real:{y_true}")
             return  self.preciseness
         elif self.position == "hidden":
@@ -70,6 +72,10 @@ class Node:
 
     def standartLoss(self,  y_true, y_pred):
         return y_true -y_pred
+    #Should be the best for this problem:
+    def BCILoss(self, y_true, y_pred):
+        return y_true * math.log(y_pred) + (1 - y_true) * math.log(1 - y_pred)
+
     #Good for classification problems. CE = -(y * log(ŷ)+(1-y)*log(1-ŷ))
     # y = real label, ŷ = prediction
     def crossEntropyLoss(self, y_true, y_pred,eps=1e-15 ):

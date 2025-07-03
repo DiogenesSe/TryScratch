@@ -1,11 +1,15 @@
 import math
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 
 class Network:
     def __init__(self, list):
         self.list = list
+
+    def reset(self):
+        for layer in self.list:
+            layer.reset()
 
     def midtrain(self, X, y_ma):
         predictions_2d = [[] for _ in range(len(self.list)+1)]
@@ -39,8 +43,6 @@ class Network:
             output_delta.append(self.list[k].backward(predictions[k+1],y,predictions[k], output_delta[k-1], self.list[k-1].getMatrix() ))
         self.list.reverse()
 
-
-
     def anwenden(self, data):
         zw = data
         for i in range(len(self.list)):
@@ -57,6 +59,17 @@ class Network:
             zw = i.getLearningRate()
             if zw > stop:
                 i.setLearningRate(learningRate*math.exp(-decayRate * run))
+    def polynominalDecay(self, power, epoch, max_epoch, stop, learningRate):
+        for i in self.list:
+            zw = i.getLearningRate()
+            if zw > stop:
+                newRate = learningRate * (1-math.pow(epoch/max_epoch, power))
+                i.setLearningRate(newRate)
+
+    def coslineAnnealingRateScheduler(self, epoch, max_epoch, stop, learningRate):
+        for i in self.list:
+            newRate = stop + ((learningRate-stop)/2)*(1+math.cos(math.pi*epoch/max_epoch))
+            i.setLearningRate(newRate)
 
 
     def train(self, data, y):
@@ -75,3 +88,64 @@ class Network:
         #output = neuron2.forward(hidden_1)
         #output_delta = neuron2.backward(hidden_1, y, output, 0, 0)
         #hidden_1 = neuron.backward(data, y, hidden_1, output_delta, neuron2.getMatrix())
+
+    def abbilden(self):
+        x = -0.5
+        point_small  = np.empty((2,0))
+        solution = np.empty((1,0))
+        while x <= 1.5:
+            y = -0.5
+            while y <= 1.5:
+                point = np.array([[x], [y]])
+                point_small = np.hstack((point_small, point))
+                if self.anwenden(point.T) < 0.5:
+                    solution = np.hstack((solution, np.array([[0]])))
+                else:
+                    solution = np.hstack((solution, np.array([[1]])))
+                y += 0.1
+            x += 0.1
+
+        label_colors = {0: 'r', 1: 'g'}
+        colors = list(map(lambda x: label_colors[int(x)], solution.flatten()))
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        ax.scatter(point_small[0, :], point_small[1, :], c=list(colors), s=60)
+        ax.set_xlim(-0.5, 1.5)
+        ax.set_ylim(-0.5, 1.5)
+        ax.set_aspect("equal")
+        fig.tight_layout()
+        plt.show()
+
+    def abbilden_multicolor(self, border_red = 0.2, border_green = 0.2):
+        x = -0.5
+        point_small  = np.empty((2,0))
+        solution = np.empty((1,0))
+        while x <= 1.5:
+            y = -0.5
+            while y <= 1.5:
+                point = np.array([[x], [y]])
+                point_small = np.hstack((point_small, point))
+                k = self.anwenden(point.T)
+                if k < 0.2:
+                    solution = np.hstack((solution, np.array([[0]])))
+                elif k < 0.8:
+                    solution = np.hstack((solution, np.array([[2]])))
+                else:
+                    solution = np.hstack((solution, np.array([[1]])))
+                y += 0.1
+            x += 0.1
+
+        label_colors = {0: 'r', 1: 'g', 2: 'y'}
+        colors = list(map(lambda x: label_colors[int(x)], solution.flatten()))
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        ax.scatter(point_small[0, :], point_small[1, :], c=list(colors), s=60)
+        ax.set_xlim(-0.5, 1.5)
+        ax.set_ylim(-0.5, 1.5)
+        ax.set_aspect("equal")
+        fig.tight_layout()
+        plt.show()
