@@ -58,9 +58,40 @@ def abbilden():
     fig.tight_layout()
     plt.show()
 
+def abbilden_multicolor(border_red = 0.2, border_green = 0.2):
+    x = -0.5
+    point_small  = np.empty((2,0))
+    solution = np.empty((1,0))
+    while x <= 1.5:
+        y = -0.5
+        while y <= 1.5:
+            point = np.array([[x], [y]])
+            point_small = np.hstack((point_small, point))
+            k = anwenden(point.T)
+            if k < 0.2:
+                solution = np.hstack((solution, np.array([[0]])))
+            elif k < 0.8:
+                solution = np.hstack((solution, np.array([[2]])))
+            else:
+                solution = np.hstack((solution, np.array([[1]])))
+            y += 0.1
+        x += 0.1
 
-neuron = Node(2,4, 0.1, "sigmoid", "hidden")
-neuron2 = Node(4,1,0.1, "sigmoid", "output")
+    label_colors = {0: 'r', 1: 'g', 2: 'y'}
+    colors = list(map(lambda x: label_colors[int(x)], solution.flatten()))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.scatter(point_small[0, :], point_small[1, :], c=list(colors), s=60)
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(-0.5, 1.5)
+    ax.set_aspect("equal")
+    fig.tight_layout()
+    plt.show()
+
+neuron = Node(2,4, 0.2, "sigmoid", "hidden")
+neuron2 = Node(4,1,0.2, "sigmoid", "output")
 neuron3 = Node(4,1,0.1, "sigmoid", "output")
 Netz = Network([neuron, neuron2])
 def train(data,y):
@@ -80,11 +111,12 @@ for x in range(100000):
     #Netz.midtrain(points,labels)
         pair = points[:, i]
         Netz.train(pair, labels[i])
-        Netz.linearDescent(0.000001,0.0005)
+        Netz.exponetialDecay(0.00023,0.0005,x,0.4)
         #if x == 150:
         #    abbilden()
     if x%100 == 0:
-        abbilden()
+        abbilden_multicolor()
+        print("---------------", neuron2.getLearningRate(),"-----predict_error---", neuron2.preciseness)
         #pass
         #Netz.train(pair, labels[i])
         #print(res)

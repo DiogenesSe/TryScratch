@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 
@@ -49,6 +51,13 @@ class Network:
             zw = i.getLearningRate()
             if zw > stop:
                 i.setLearningRate(zw-descend)
+    # the smaller the more flat it is
+    def exponetialDecay(self, decayRate, stop, run, learningRate):
+        for i in self.list:
+            zw = i.getLearningRate()
+            if zw > stop:
+                i.setLearningRate(learningRate*math.exp(-decayRate * run))
+
 
     def train(self, data, y):
         predictions = [data]

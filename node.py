@@ -15,6 +15,7 @@ class Node:
         #to avoid dying rlu 0.01 else 0.0 would be acceptable
         #self.bias = np.full((1,data_output_size),0.1)
         #test with other
+        self.preciseness = 0
         self.bias = np.zeros((1, data_output_size))
         # dictionary for all the activaion function
         if isinstance(activation, str):
@@ -29,13 +30,13 @@ class Node:
     #Error Depending on position
     def error(self, y_true, y_pred, output_delta, weights_hidden_output):
         if self.position == "output":
-            zw = self.standartLoss(y_true, y_pred)
-            print(f"loss: {zw}, predict: {y_pred}, real:{y_true}")
-            return  zw
+            self.preciseness = self.standartLoss(y_true, y_pred)
+            #print(f"loss: {self.preciseness}, predict: {y_pred}, real:{y_true}")
+            return  self.preciseness
         elif self.position == "hidden":
-            zw = np.dot(output_delta, weights_hidden_output.T)
-            print(f"{zw}")
-            return zw
+            self.preciseness = np.dot(output_delta, weights_hidden_output.T)
+            #print(f"{self.preciseness}")
+            return self.preciseness
         else:
             return 0
 
@@ -100,23 +101,31 @@ class Node:
         #bias = error * f'(y_predict) * eta
         self.bias += np.sum(delta, axis=0, keepdims=True) * self.eta
         return delta
+
+    #### Getter and Setter ###
     def getZ(self):
         return self.z
     def setZ(self, z):
         self.z = z
+
     def getMatrix(self):
         return self.matrix
+    def setBias(self, bias):
+        self.bias = bias
+
     def getBias(self):
         return self.bias
+    def setMatrix(self, matrix):
+        self.matrix = matrix
+
     def getLearningRate(self):
         return self.eta
     def setLearningRate(self, eta):
         self.eta = eta
 
-    def setBias(self, bias):
-        self.bias = bias
-    def setMatrix(self, matrix):
-        self.matrix = matrix
+    def getPreciseness(self):
+        return self.preciseness
+
     def returnAll(self):
         print("---------- MATRIX ----------")
         print(self.matrix)
