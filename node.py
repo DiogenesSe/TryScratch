@@ -32,7 +32,7 @@ class Node:
     #Error Depending on position
     def error(self, y_true, y_pred, output_delta, weights_hidden_output):
         if self.position == "output":
-            self.preciseness = self.BCILoss(y_true, y_pred)
+            self.preciseness = self.standartLoss(y_true, y_pred)
             #print(f"loss: {self.preciseness}, predict: {y_pred}, real:{y_true}")
             return  self.preciseness
         elif self.position == "hidden":
@@ -63,6 +63,23 @@ class Node:
             return 0
         else:
             return 1
+    # Exponential Linear Unit (elu) a ( e^x -1) for x < 0, else x for x>= 0
+    def exponentialLinarUnit(self, x, a= .1):
+        if x <0:
+            return a* (math.exp(x)-1)
+        else:
+            return x
+    def exponentialLinarUnit_deriv(self, x, a= .1):
+        if x < 0:
+            return a* (math.exp(x))
+        else:
+            return 1
+
+    #Gaussian e^(a(x-t)^2)
+    def Gaussian(self, x, a = 0.1, t = 0.1):
+        return math.exp(-a * (x - t) ** 2)
+    def Gaussian_deriv(self, x, a = 0.1, t = 0.1):
+        return math.exp(-a * (x - t) ** 2) * a*(2*x+2*t)
 
     #Posible output x= 0 then 0 if x >0 then 1 ELSE -1
     def sign(self, x):
@@ -72,6 +89,7 @@ class Node:
 
     def standartLoss(self,  y_true, y_pred):
         return y_true -y_pred
+
     #Should be the best for this problem:
     def BCILoss(self, y_true, y_pred):
         return y_true * math.log(y_pred) + (1 - y_true) * math.log(1 - y_pred)
@@ -81,6 +99,7 @@ class Node:
     def crossEntropyLoss(self, y_true, y_pred,eps=1e-15 ):
         y_pred = np.clip(y_pred, eps, 1 - eps)
         return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+
     #Good for regression problems. For this f(x) = 1 E n : (x-y)^ 2
     def meanSquareError(self, y_true, y_pred):
         return np.mean((y_true - y_pred)**2)
